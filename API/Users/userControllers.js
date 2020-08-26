@@ -1,11 +1,9 @@
-// require('dotenv').config()
-
 const express = require("express");
 const app = express();
 const bodyPaser = require("body-parser");
 const jwt = require ('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
+const saltRounds = 15;
 
 const { post } = require("./userRoutes");
 
@@ -13,17 +11,25 @@ app.use(bodyPaser.json());
 // app.use(express.json());
 
 
-
-const posts = [
+const adminUsers = [
     {
-        userName: 'santi',
-        title: 'post 1'
-    }, 
+        UserName: "santi",
+        fullName: "Beja ",
+        email: "santi@email.com",
+        phone: 345678,
+        address: "123 fake st",
+        admin: true
+    },
     {
-        userName: 'santi',
-        title: 'post 1'
+        UserName: "Pepita",
+        fullName: "smith",
+        email: "pep@email.com",
+        phone: 345678,
+        address: "null",
+        admin: true
     }
 ]
+
 
 // save token in local storage
 app.post('/posts', verifyToken, (req, res) => {
@@ -50,7 +56,6 @@ app.post('/login1', (req, res) => {
         
     });
 });
-
 
 const myPassword = 'keeper20';
 
@@ -98,8 +103,6 @@ function verifyToken(req, res, next){
         });
     }
 }
-
-
 
 
 

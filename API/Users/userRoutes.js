@@ -3,9 +3,13 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const db = require('../../SQL/SQLRoutes');
 
+const bcrypt = require('bcrypt');
+const saltRounds = 15;
+
 const app = express();
 app.use(bodyParser.json());
 
+// check this end to another file
 // END TO HANDLE ERRORS
 app.use(function (err, req, res, next){
   console.log(err.stack);
@@ -15,13 +19,26 @@ app.use(function (err, req, res, next){
 });
 
 
-const admin = {
-  "fullName": "Santi",
-  "fullName": "Beja P",
-  "adminEmail": "santi@email.com",
-  "adminPassword": 123456,
-  "admin": "true"
-} 
+const adminUsers = [
+  {
+    UserName: "santi",
+    fullName: "Beja ",
+    email: "santi@email.com",
+    phone: 345678,
+    address: "123 fake st",
+    // password: 123456,
+    // admin: true
+  },
+  {
+    UserName: "Pepita",
+    fullName: "smith",
+    email: "pep@email.com",
+    phone: 345678,
+    address: "null",
+    // password: 123456,
+    // admin: true
+  }
+]
 
 
 // async functions 
@@ -36,9 +53,9 @@ function validateAdmin (req, res, next){
   }
 }
 
-
+// add validate function
 //EMP to get all the uses '/Users'
-app.get('/', validateAdmin, (req, res) => {
+app.get('/', (req, res) => {
   let sql = 'SELECT * FROM base_resto.users';
   db.query(sql, (err, result) => {
     if(err){
@@ -53,7 +70,6 @@ app.get('/', validateAdmin, (req, res) => {
     }
   });
 });
-
 
 // EMP to get info by ID
 app.get("/:userId", validateAdmin, (req, res) => {
@@ -73,26 +89,32 @@ app.get("/:userId", validateAdmin, (req, res) => {
   });
 });
 
-
 // CHECK validateAdmin
 // EMP to created Users
-app.post('/add', (req, res) => {
-  let sql = `INSERT INTO base_resto.users SET userName = '${req.body.userName}', fullName = '${req.body.fullName}', email = '${req.body.email}', phone = ${req.body.phone}, address = '${req.body.address}'`;
-  db.query(sql, (err,  result) => {
-    if(err){
-      console.log(err);
-      res.status(400).json({
-        message: 'bad resquest'
-      });
-    } else {
-        res.status(200).json({
-          message: 'User created Successfully',
-          list: result
-        });
-    }
-  });
-});
+// app.post('/create', (req, res) => {
 
+//   bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
+//     let sql = `INSERT INTO base_resto.users 
+//         SET userName = '${req.body.userName}', 
+//         fullName = '${req.body.fullName}', 
+//         email = '${req.body.email}', 
+//         phone = ${req.body.phone}, 
+//         address = '${req.body.address}'`;
+//     db.query(sql, (err,  result) => {
+//       if(err){
+//         console.log(err);
+//         res.status(400).json({
+//           message: 'bad resquest'
+//         });
+//       } else {
+//           res.status(200).json({
+//             message: 'User created Successfully',
+//             list: result
+//           });
+//       }
+//     });
+//   });
+// });
 
 // check, not working properly, 
 //  EMP to update users
@@ -115,7 +137,6 @@ app.patch('/:userId', (req, res) => {
     });
 });
 
-
 // EMP to Delete users
 app.delete('/:userId', validateAdmin, (req, res) => {
   const id = req.params.userId;
@@ -137,4 +158,3 @@ app.delete('/:userId', validateAdmin, (req, res) => {
 module.exports =  app;
 // check 
 // exports.exisUser;
-
