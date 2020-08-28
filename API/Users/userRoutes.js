@@ -4,7 +4,7 @@ const mysql = require('mysql');
 const db = require('../../SQL/SQLRoutes');
 
 const bcrypt = require('bcrypt');
-const saltRounds = 15;
+const saltRounds = 13;
 
 const app = express();
 app.use(bodyParser.json());
@@ -21,7 +21,7 @@ app.use(function (err, req, res, next){
 
 const adminUsers = [
   {
-    UserName: "santi",
+    userName: "santi",
     fullName: "Beja ",
     email: "santi@email.com",
     phone: 345678,
@@ -30,7 +30,7 @@ const adminUsers = [
     admin: true
   },
   {
-    UserName: "Pepita",
+    userName: "Pepita",
     fullName: "smith",
     email: "pep@email.com",
     phone: 345678,
@@ -39,7 +39,6 @@ const adminUsers = [
     admin: true
   }
 ]
-
 
 // async functions 
 // EMP to validate users
@@ -92,28 +91,32 @@ app.get("/:userId", validateAdmin, (req, res) => {
 // CHECK validateAdmin
 // EMP to created Users
 app.post('/create', (req, res) => {
-
-  bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
-    let sql = `INSERT INTO base_resto.users 
-        SET userName = '${req.body.userName}', 
+  try{   
+    bcrypt.hash('req.body.password', saltRounds, function (err, hash) {   
+      let sql = `INSERT INTO base_resto.users SET 
+        userName = '${req.body.userName}', 
         fullName = '${req.body.fullName}', 
-        email = '${req.body.email}', 
+        email = '${req.body.email}',  
         phone = ${req.body.phone}, 
-        address = '${req.body.address}'`;
-    db.query(sql, (err,  result) => {
-      if(err){
-        console.log(err);
-        res.status(400).json({
-          message: 'bad resquest'
-        });
-      } else {
-          res.status(200).json({
-            message: 'User created Successfully',
-            list: result
+        address = '${req.body.address}' 
+        password = '${hash}'`;
+      db.query(sql, (err,  result) => {
+        if(err){
+          console.log(err);
+          res.status(400).json({
+            message: 'bad resquest'
           });
-      }
+        } else {
+            res.status(200).json({
+              message: 'User created Successfully',
+              list: result
+            });
+        }
+      });
     });
-  });
+  } catch (err){
+    console.log(err);
+  }
 });
 
 // check, not working properly, 
@@ -137,8 +140,9 @@ app.patch('/:userId', (req, res) => {
     });
 });
 
+// check for adming auth
 // EMP to Delete users
-app.delete('/:userId', validateAdmin, (req, res) => {
+app.delete('/:userId', (req, res) => {
   const id = req.params.userId;
   const sql = `DELETE FROM base_resto.users WHERE userId  = ${id}`;
   db.query(sql, (err, result) => {
