@@ -59,10 +59,7 @@ app.post('/login1', (req, res) => {
 
 const myPassword = 'keeper20';
 
-// verifying a password hash
-bcrypt.hash('myPassword', 10, function(err, hash) {
-    
-});
+
 
 app.post('/login', (req, res) => {
     // auth User

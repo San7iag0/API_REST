@@ -2,9 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const db = require('../../SQL/SQLRoutes');
-
 const bcrypt = require('bcrypt');
-const saltRounds = 13;
+const saltRounds = 10;
 
 const app = express();
 app.use(bodyParser.json());
@@ -88,18 +87,17 @@ app.get("/:userId", validateAdmin, (req, res) => {
   });
 });
 
+// verifying a password hash
+bcrypt.hash('myPassword', 10, function(err, hash) {
+    
+});
+
 // CHECK validateAdmin
 // EMP to created Users
 app.post('/create', (req, res) => {
   try{   
-    bcrypt.hash('req.body.password', saltRounds, function (err, hash) {   
-      let sql = `INSERT INTO base_resto.users SET 
-        userName = '${req.body.userName}', 
-        fullName = '${req.body.fullName}', 
-        email = '${req.body.email}',  
-        phone = ${req.body.phone}, 
-        address = '${req.body.address}' 
-        password = '${hash}'`;
+    bcrypt.hash(req.body.password, saltRounds, function (err, hash) {   
+      let sql = `INSERT INTO base_resto.users SET userName = '${req.body.userName}', fullName = '${req.body.fullName}', email = '${req.body.email}', phone = ${req.body.phone}, address = '${req.body.address}', password = '${hash}'`;
       db.query(sql, (err,  result) => {
         if(err){
           console.log(err);
