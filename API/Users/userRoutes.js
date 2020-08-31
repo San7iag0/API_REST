@@ -39,11 +39,16 @@ const adminUsers = [
   }
 ]
 
+const admin = {
+  email: "pep@email.com",
+  password: 123456
+}
+
 // async functions 
 // EMP to validate users
 function validateAdmin (req, res, next){
   const {email, password} = req.body;
-  if (req.body.adminEmail !== admin.adminEmail || req.body.adminPassword !== admin.adminPassword){
+  if (req.body.email !== admin.email || req.body.password !== admin.password){
     res.status(403).json('Email or Password incorrect');
   }else {
     console.log('validated successfully');
@@ -53,7 +58,7 @@ function validateAdmin (req, res, next){
 
 // add validate function
 //EMP to get all the uses '/Users'
-app.get('/', (req, res) => {
+app.get('/',  (req, res) => {
   let sql = 'SELECT * FROM base_resto.users';
   db.query(sql, (err, result) => {
     if(err){
@@ -69,29 +74,31 @@ app.get('/', (req, res) => {
   });
 });
 
+// check esta mierda no esta funcionando revisar manejo de errores 
+// check for admin
 // EMP to get info by ID
-app.get("/:userId", validateAdmin, (req, res) => {
-  const id = req.params.userId;
-  let sql = `SELECT * FROM base_resto.users WHERE userId = ${id}`; 
-  db.query(sql, (err, result) => {
-    if(err){
-      res.status(403).json({
-        message: 'you dont have access'
-      });
-    } else {
-      res.status(200).json({
-        message: 'User information',
-        list: result
-      })
-    }
-  });
+app.get("/:userId",validateAdmin, (req, res) => {
+  try{
+    const id = req.params.userId;
+    let sql = `SELECT * FROM base_resto.users WHERE userId = ${id}`; 
+    db.query(sql, (err, result) => {
+      if(err){
+        console.log('hola amigos')
+        res.status(403).json({
+          message: 'Wrong user Id'
+        });
+      } else {
+        res.status(200).json({
+          message: 'User information',
+          list: result
+        })
+      }
+    });
+  } catch (res) {
+  }
 });
 
-// verifying a password hash
-bcrypt.hash('myPassword', 10, function(err, hash) {
-    
-});
-
+// check for data when you save on db
 // CHECK validateAdmin
 // EMP to created Users
 app.post('/create', (req, res) => {
@@ -117,8 +124,26 @@ app.post('/create', (req, res) => {
   }
 });
 
+app.post('/login', (req, res) => {
+  let authEmail = req.body.email;
+  let sql = `SELECT * base_resto.users WHERE email = ${authEmail}`;
+  db.query(sql, (err, result) => {
+    if(!!sql){
+      res.status(403).json({
+        message: 'you dont have access'
+      });
+    } else {
+      res.status(200).json({
+        message: `you just deleted User ID: ${id}`,
+        list: result
+      });
+    }
+  });
+});
+
 // check, not working properly, 
 //  EMP to update users
+// check for user auth
 app.patch('/:userId', (req, res) => {
   const id = req.params.userId;
   let sql = `UPDATE base_resto.users SET userName = '${req.body.userName}', fullName = '${req.body.fullName}', email = '${req.body.email}', phone = ${req.body.phone}, address = '${req.body.address}' 
