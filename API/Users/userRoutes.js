@@ -77,7 +77,7 @@ app.get('/',  (req, res) => {
 // check esta mierda no esta funcionando revisar manejo de errores 
 // check for admin
 // EMP to get info by ID
-app.get("/:userId",validateAdmin, (req, res) => {
+app.get("/:userId", (req, res) => {
   try{
     const id = req.params.userId;
     let sql = `SELECT * FROM base_resto.users WHERE userId = ${id}`; 
@@ -99,7 +99,7 @@ app.get("/:userId",validateAdmin, (req, res) => {
 });
 
 // check for data when you save on db
-// CHECK validateAdmin
+// CHECK for Admin
 // EMP to created Users
 app.post('/create', (req, res) => {
   try{   
@@ -126,22 +126,26 @@ app.post('/create', (req, res) => {
 
 app.post('/login', (req, res) => {
   let authEmail = req.body.email;
-  let sql = `SELECT * base_resto.users WHERE email = ${authEmail}`;
+  let sql = `SELECT * FROM base_resto.users WHERE email = '${authEmail}'`;
   db.query(sql, (err, result) => {
-    if(!!sql){
-      res.status(403).json({
-        message: 'you dont have access'
+
+  //   res.json({
+  //     list: result
+  //   });
+  console.log(result[0].email);
+    if(result[0].email != authEmail ){
+      res.status(400).json({
+        message: 'wrong Email'
       });
     } else {
       res.status(200).json({
-        message: `you just deleted User ID: ${id}`,
-        list: result
+        message: 'you got me'
       });
     }
   });
 });
 
-// check, not working properly, 
+// check, not working properly, the fucking error validation is not f working 
 //  EMP to update users
 // check for user auth
 app.patch('/:userId', (req, res) => {
@@ -183,5 +187,3 @@ app.delete('/:userId', (req, res) => {
 });
 
 module.exports =  app;
-// check 
-// exports.exisUser;
