@@ -128,22 +128,31 @@ app.post('/login', (req, res) => {
   let authEmail = req.body.email;
   let sql = `SELECT * FROM base_resto.users WHERE email = '${authEmail}'`;
   db.query(sql, (err, result) => {
-
-  //   res.json({
-  //     list: result
-  //   });
-  console.log(result[0].email);
     if(result[0].email != authEmail ){
       res.status(400).json({
-        message: 'wrong Email'
+        message: 'wrong Email Or password'
       });
     } else {
-      res.status(200).json({
-        message: 'you got me'
+      bcrypt.compare('req.body.password', 'result[0].password', function(err, result) {
+        if(result == true){
+          console.log('hola amigos');
+        } else {
+          // check
+          console.log(err);
+          console.log('you stink');
+          res.status(404).json({
+            // check
+            message:'apestas amigo'
+          })
+        }
       });
+      console.log(result[0].password);
     }
   });
 });
+
+// check borrar 
+// santi@email.com
 
 // check, not working properly, the fucking error validation is not f working 
 //  EMP to update users
