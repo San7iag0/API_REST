@@ -83,7 +83,6 @@ app.get("/:userId", (req, res) => {
     let sql = `SELECT * FROM base_resto.users WHERE userId = ${id}`; 
     db.query(sql, (err, result) => {
       if(err){
-        console.log('hola amigos')
         res.status(403).json({
           message: 'Wrong user Id'
         });
@@ -95,58 +94,58 @@ app.get("/:userId", (req, res) => {
       }
     });
   } catch (res) {
+
   }
 });
 
 // check for data when you save on db
 // CHECK for Admin
 // EMP to created Users
-app.post('/create', (req, res) => {
-  try{   
-    bcrypt.hash(req.body.password, saltRounds, function (err, hash) {   
-      let sql = `INSERT INTO base_resto.users SET userName = '${req.body.userName}', fullName = '${req.body.fullName}', email = '${req.body.email}', phone = ${req.body.phone}, address = '${req.body.address}', password = '${hash}'`;
-      db.query(sql, (err,  result) => {
-        if(err){
-          console.log(err);
-          res.status(400).json({
-            message: 'bad resquest'
-          });
-        } else {
-            res.status(200).json({
-              message: 'User created Successfully',
-              list: result
-            });
-        }
-      });
+app.post('/create', (req, res) => { 
+  bcrypt.hash(`${req.body.password}`, saltRounds, function (err, hash) {   
+    let sql = `INSERT INTO base_resto.users SET userName = '${req.body.userName}', fullName = '${req.body.fullName}', email = '${req.body.email}', phone = ${req.body.phone}, address = '${req.body.address}', password = '${hash}'`;
+    db.query(sql, (err,  result) => {
+      if(err){
+        console.log(err);
+        res.status(400).json({
+          message: 'bad resquest'
+        });
+      } else {
+        res.status(200).json({
+          message: 'User create Successfully',
+          list: result
+        });
+      }
     });
-  } catch (err){
-    console.log(err);
-  }
+  });
 });
 
 app.post('/login', (req, res) => {
   let authEmail = req.body.email;
   let sql = `SELECT * FROM base_resto.users WHERE email = '${authEmail}'`;
   db.query(sql, (err, result) => {
+    console.log(result);
     if(result[0].email != authEmail ){
       res.status(400).json({
         message: 'wrong Email Or password'
       });
     } else {
-      bcrypt.compare('req.body.password', 'result[0].password', function(err, result) {
-        if(result == true){
-          console.log('hola amigos');
+      bcrypt.compare(`${req.body.password}`, `${result[0].password}`, function(err, result1) {
+        if(result1 == true){
+          res.status(200).json({
+            // check
+            message: 'got it'
+          })
         } else {
           // check
-          console.log(err);
-          console.log('you stink');
+          // console.log(err);
+          // console.log('you stink');
           res.status(404).json({
             // check
-            message:'apestas amigo'
+            message:'err'
           })
         }
       });
-      console.log(result[0].password);
     }
   });
 });
