@@ -130,16 +130,14 @@ app.post('/login', (req, res) => {
         message: 'wrong Email Or password'
       });
     } else {
-      bcrypt.compare(`${req.body.password}`, `${result[0].password}`, function(err, result1) {
-        if(result1 == true){
+      bcrypt.compare(`${req.body.password}`, `${result[0].password}`, function(err, resultCompare) {
+        if(resultCompare == true){
           res.status(200).json({
             // check
             message: 'got it'
           })
         } else {
-          // check
-          // console.log(err);
-          // console.log('you stink');
+          // check for JWT
           res.status(404).json({
             // check
             message:'err'
