@@ -2,14 +2,10 @@ const express = require("express");
 const app = express();
 const bodyPaser = require("body-parser");
 const jwt = require ('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const saltRounds = 15;
 
-const { post } = require("./userRoutes");
 
 app.use(bodyPaser.json());
 // app.use(express.json());
-
 
 const adminUsers = [
     {
@@ -30,11 +26,10 @@ const adminUsers = [
     }
 ]
 
-
 // save token in local storage
 app.post('/posts', verifyToken, (req, res) => {
-
     jwt.verify(req.token, 'secretKey', (err, authData) => {
+        console.log(token)
         if(err){
             res.sendStatus(403).json({
                 message: err
@@ -49,33 +44,6 @@ app.post('/posts', verifyToken, (req, res) => {
         }
     });
     
-});
-
-app.post('/login1', (req, res) => {
-    bcrypt.hash(req.body.myPassword, saltRounds, function(err, hash) {
-        
-    });
-});
-
-const myPassword = 'keeper20';
-
-
-
-app.post('/login', (req, res) => {
-    // auth User
-    const user = {
-        id:1, 
-        username: 'sant',
-        email: "ttsbp@hot.com"
-    }
-
-    jwt.sign({user}, 'secretKey', (err, token) => {
-        res.json({
-            token
-        });
-    });
-
-
 });
 
 // FORMAT OF TOKKEN 
@@ -100,8 +68,5 @@ function verifyToken(req, res, next){
         });
     }
 }
-
-
-
 
 module.exports = app /*validateUser*/;
