@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const db = require('../../SQL/SQLRoutes');
 const bcrypt = require('bcrypt');
+const verifyToken = require('./userControllers')
+
 const saltRounds = 10;
 
 const app = express();
@@ -39,26 +41,9 @@ const adminUsers = [
   }
 ]
 
-const admin = {
-  email: "pep@email.com",
-  password: 123456
-}
-
-// async functions 
-// EMP to validate users
-function validateAdmin (req, res, next){
-  const {email, password} = req.body;
-  if (req.body.email !== admin.email || req.body.password !== admin.password){
-    res.status(403).json('Email or Password incorrect');
-  }else {
-    console.log('validated successfully');
-    next();
-  }
-}
-
 // add validate function
 //EMP to get all the uses '/Users'
-app.get('/',  (req, res) => {
+app.get('/', verifyToken, (req, res) => {
   let sql = 'SELECT * FROM base_resto.users';
   db.query(sql, (err, result) => {
     if(err){
@@ -77,7 +62,7 @@ app.get('/',  (req, res) => {
 // check esta mierda no esta funcionando revisar manejo de errores 
 // check for admin
 // EMP to get info by ID
-app.get("/:userId", (req, res) => {
+app.get("/:userId", verifyToken, (req, res) => {
     const id = req.params.userId;
     let sql = `SELECT * FROM base_resto.users WHERE userId = ${id}`; 
     db.query(sql, (err, result) => {
@@ -117,40 +102,10 @@ app.post('/create', (req, res) => {
 });
 
 
-
-app.post('/login', (req, res) => {
-  let authEmail = req.body.email;
-  let sql = `SELECT * FROM base_resto.users WHERE email = '${authEmail}'`;
-  db.query(sql, (err, result) => {
-    console.log(result);
-    if(result[0].email != authEmail ){
-      res.status(400).json({
-        message: 'wrong Email Or password'
-      });
-    } else {
-      bcrypt.compare(`${req.body.password}`, `${result[0].password}`, function(bcryptErr, resultCompare) {
-        if(resultCompare !== true){
-          res.status(400).json({
-            list: bcryptErr,
-            message: 'wrong Email Or password'
-          })
-        } else {
-          // check for JWT
-          res.status(200).json({
-            message:'you have access now'
-
-
-          })
-        }
-      });
-    }
-  });
-});
-
 // check, not working properly, the fucking error validation is not f working 
 //  EMP to update users
 // check for user auth
-app.patch('/:userId', (req, res) => {
+app.patch('/:userId', verifyToken, (req, res) => {
   const id = req.params.userId;
   let sql = `UPDATE base_resto.users SET userName = '${req.body.userName}', fullName = '${req.body.fullName}', email = '${req.body.email}', phone = ${req.body.phone}, address = '${req.body.address}' 
   WHERE userId = ${id}`;
@@ -171,7 +126,7 @@ app.patch('/:userId', (req, res) => {
 
 // check for adming auth
 // EMP to Delete users
-app.delete('/:userId', (req, res) => {
+app.delete('/:userId', verifyToken, (req, res) => {
   const id = req.params.userId;
   const sql = `DELETE FROM base_resto.users WHERE userId  = ${id}`;
   db.query(sql, (err, result) => {
