@@ -78,7 +78,6 @@ app.get('/',  (req, res) => {
 // check for admin
 // EMP to get info by ID
 app.get("/:userId", (req, res) => {
-  try{
     const id = req.params.userId;
     let sql = `SELECT * FROM base_resto.users WHERE userId = ${id}`; 
     db.query(sql, (err, result) => {
@@ -93,9 +92,6 @@ app.get("/:userId", (req, res) => {
         })
       }
     });
-  } catch (res) {
-
-  }
 });
 
 // check for data when you save on db
@@ -119,6 +115,8 @@ app.post('/create', (req, res) => {
     });
   });
 });
+
+
 
 app.post('/login', (req, res) => {
   let authEmail = req.body.email;
@@ -148,9 +146,6 @@ app.post('/login', (req, res) => {
     }
   });
 });
-
-// check borrar 
-// santi@email.com
 
 // check, not working properly, the fucking error validation is not f working 
 //  EMP to update users

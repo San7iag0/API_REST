@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 app.use("/products", productRoutes);
 app.use("/users", usersRoutes);
 app.use("/orders", orderRoutes);
-app.use("/uc", usersControllers);
+app.use("/userControllers", usersControllers);
 
 
 

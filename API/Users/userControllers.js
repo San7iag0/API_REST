@@ -2,10 +2,9 @@ const express = require("express");
 const app = express();
 const bodyPaser = require("body-parser");
 const jwt = require ('jsonwebtoken');
-
+const db = require('../../SQL/SQLRoutes');
 
 app.use(bodyPaser.json());
-// app.use(express.json());
 
 const adminUsers = [
     {
@@ -26,30 +25,38 @@ const adminUsers = [
     }
 ]
 
-// save token in local storage
-app.post('/posts', verifyToken, (req, res) => {
-    jwt.verify(req.token, 'secretKey', (err, authData) => {
-        console.log(token)
+// -----------------------
+// verify  jwt save on headers 
+// check, change that ws name
+app.post('/api/posts', verifyToken, (req, res) => {
+    jwt.verify(req.token, "secretKey", (err, authData) => {
         if(err){
-            res.sendStatus(403).json({
-                message: err
-            });
+            res.sendStatus(403); //forbiden
         } else {
             res.json({
-                // check 
-                message: 'Lo logro, el h perra lo logroo',
+                // check for message
+                message: 'up and running',
                 authData,
-                list: posts
             });
         }
     });
-    
-});
+  });
+
+  app.post('/api/login', (req, res) => {
+    //   created user with The EMAIL as an object 
+    const user = {
+        // `${result[0].email}`
+      Email: 'santi@mail.com' // ejem check delete 
+    }
+    jwt.sign({user: user}, "secretKey", (err, token) => {
+      res.json({
+        token, 
+      })
+    });
+  });
 
 // FORMAT OF TOKKEN 
-// AUTHORIZATION: BEARRER<ACCESS_TOKEN>
-
-// Verify token
+// Verify token on headers 
 function verifyToken(req, res, next){
     // get auth header value
     const bearerHeader = req.headers['authorization'];
@@ -69,4 +76,4 @@ function verifyToken(req, res, next){
     }
 }
 
-module.exports = app /*validateUser*/;
+module.exports = app;
