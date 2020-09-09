@@ -7,21 +7,21 @@ const verifyToken = require('../Users/userControllers');
 
 app.use(bodyParser.json());
 
-// all orders might be visible just for admins 
+
 // EMP to get all orders list
 // handle GET request to /oders
 app.get("/", verifyToken, (req, res) =>{
-        let sql = 'SELECT * FROM base_resto.orders';
-        db.query(sql, (err, result) => {
-            if(err){
-                console.log(err);
-            } else { 
-                res.status(200).json({
-                    message: 'Orders list',
-                    list: result
-                });
-            }
-        });
+    let sql = 'SELECT * FROM base_resto.orders';
+    db.query(sql, (err, result) => {
+        if(err){
+            res.status(400)
+        } else { 
+            res.status(200).json({
+                message: 'Orders list',
+                list: result
+            });
+        }
+    });
 });
 
 

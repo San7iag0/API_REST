@@ -11,26 +11,15 @@ app.use(bodyParser.json());
 
 const exisUser = require('../Users/userRoutes');
 
-// check delite this prodducs 
-const products = [{
-  "productName": "empanada", 
-  "price": "1k"
-  },
-  {
-    "productName": "Stroganoff", 
-    "price": 4312
-  },
-  {
-    "productName": "watter", 
-    "price": 4
-  }
-]
+
 //EMP to get the product list 
 app.get("/", (req, res) => {
     let sql = 'SELECT * FROM base_resto.products;';
     db.query(sql, (err, result) => {
       if(err){
-        console.log(err);
+        res.status(400).json({
+          message: "Bad Request"
+        })
       } else {
         res.status(200).json({
           message: "Product list",

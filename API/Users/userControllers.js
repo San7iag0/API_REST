@@ -74,15 +74,15 @@ app.post('/login', (req, res) => {
     db.query(sql, (err, result) => {
       console.log(result);
       if(result[0].email != authEmail ){
-        res.status(400).json({
-          message: 'wrong Email Or password'
+        res.status(401).json({
+          message: 'Unauthorized, wrong Email Or password'
         });
       } else {
         bcrypt.compare(`${req.body.password}`, `${result[0].password}`, function(bcryptErr, resultCompare) {
           if(resultCompare !== true){
-            res.status(400).json({
+            res.status(403).json({
               list: bcryptErr,
-              message: 'wrong Email Or password'
+              message: 'Forbidden, Wrong Email Or password'
             })
           } else {
             // check for JWT
@@ -90,8 +90,7 @@ app.post('/login', (req, res) => {
               message:'you have access now'
                 // check add jwt to headers 
                 // just admin validtaion 
-  
-            })
+            });
           }
         });
       }
