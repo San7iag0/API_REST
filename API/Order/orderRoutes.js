@@ -1,20 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
-// const Sequelize = require('sequelize');
 const app = express();
 const db = require('../../SQL/SQLRoutes');
-// const router = express.Router();
-// const server = express();
-app.use(bodyParser.json());
+const verifyToken = require('../Users/userControllers');
 
-// const validateAdmin = require('./');
+app.use(bodyParser.json());
 
 // all orders might be visible just for admins 
 // EMP to get all orders list
 // handle GET request to /oders
-app.get("/", (req, res) =>{
-    try{
+app.get("/", verifyToken, (req, res) =>{
         let sql = 'SELECT * FROM base_resto.orders';
         db.query(sql, (err, result) => {
             if(err){
@@ -26,9 +22,6 @@ app.get("/", (req, res) =>{
                 });
             }
         });
-    } catch (err) {
-        // check for errors 
-    }
 });
 
 
@@ -52,7 +45,7 @@ app.get("/:userId", (req, res) => {
 
 // check -- Just the admin will be able to create orders 
 // EMP to create orders
-app.post('/add', (req, res) => {
+app.post('/add', verifyToken, (req, res) => {
     const userId = req.body.userId;
         let sql = `INSERT INTO base_resto.orders SET products = "${req.body.products}", address = "${req.body.address}", userId = ${userId}`;
         db.query(sql, (err, result) => {
@@ -71,9 +64,8 @@ app.post('/add', (req, res) => {
 });
 
 
-app.patch('/:orderId', (req, res) => {
+app.patch('/:orderId', verifyToken, (req, res) => {
     const id = req.params.orderId;
-    try{
         let sql = `UPDATE base_resto.orders SET products = "${req.body.products}", address = "${req.body.address}" WHERE orderId = ${id}`;
 
         db.query(sql, (err, result) => {
@@ -86,19 +78,13 @@ app.patch('/:orderId', (req, res) => {
                 })
             }
         });
-    } catch (err) {
-        // check for errors
-        // request defined wrong
-        console.log(err);
-    }
 });
 
 
 // EMP TO DELETE ODERS
 // check just admins will be able to delete orders
-app.delete('/delete/:orderId', (req, res) => {
+app.delete('/delete/:orderId', verifyToken, (req, res) => {
     const id = req.params.orderId;
-    try{
         let sql = `DELETE FROM base_resto.orders WHERE orderId = ${id}`;
         db.query(sql, (err, result) => {
             if(err) {
@@ -111,10 +97,6 @@ app.delete('/delete/:orderId', (req, res) => {
                 })
             }
         })
-    } catch {
-        // check for errors 
-    }
-
 });
 
 

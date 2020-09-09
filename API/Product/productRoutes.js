@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const db = require('../../SQL/SQLRoutes');
+const verifyToken = require('../Users/userControllers');
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(bodyParser.json());
 
 const exisUser = require('../Users/userRoutes');
 
+// check delite this prodducs 
 const products = [{
   "productName": "empanada", 
   "price": "1k"
@@ -25,7 +27,6 @@ const products = [{
 ]
 //EMP to get the product list 
 app.get("/", (req, res) => {
-  try{
     let sql = 'SELECT * FROM base_resto.products;';
     db.query(sql, (err, result) => {
       if(err){
@@ -36,18 +37,12 @@ app.get("/", (req, res) => {
           list: result
         });
       }
-    });
-  } catch (err){
-    console.log(err);
-  }
-  
+    }); 
 });
 
 
-// check just admin is able to add products 
 //Endpoint Create
-app.post("/add", (req, res) => {
-  try{
+app.post("/add", verifyToken, (req, res) => {
     let sql = `INSERT INTO base_resto.products SET productName = '${req.body.productName}', price = ${req.body.price}`;
     db.query(sql, (err, result) => {
       if(err){
@@ -62,9 +57,6 @@ app.post("/add", (req, res) => {
         });
     }      
     });
-  } catch(err){
-    console.log(err);
-  }
 });
 
 
@@ -72,7 +64,6 @@ app.post("/add", (req, res) => {
 // get information of a product By the ID 
 app.get("/:productId", (req, res, next) => {
   const id = req.params.productId;
-  try{
     let sql = `SELECT * FROM base_resto.products WHERE productsId = ${id}`; 
     db.query(sql, (err, result) => {
       if(err){
@@ -84,20 +75,13 @@ app.get("/:productId", (req, res, next) => {
         })
       }
     });
-  } catch (error){
-    console.log(error);
-    res.status(400).json({
-      message: error
-    })
-  } 
 });
 
 
 //check 
 //check updated products just by the admin 
-app.patch('/:productId', (req, res) => {
+app.patch('/:productId', verifyToken, (req, res) => {
   const id = req.params.productId;
-  try{
     let sql = `UPDATE base_resto.products SET productName = '${req.body.productName}', price = ${req.body.price} WHERE productsId = ${id}`;
     db.query(sql, (err, result) => {
       if(err){
@@ -109,14 +93,11 @@ app.patch('/:productId', (req, res) => {
         });
       }
     });
-  }catch{
-    // check // add admin error
-  }
 });
+
 // check 
-app.delete('/:productId', (req, res, next) => {
+app.delete('/:productId', verifyToken, (req, res, next) => {
   const id = req.params.productId;
-  try{
     const sql = `DELETE FROM base_resto.products WHERE productsId = ${id}`;
     db.query(sql, (err, result) => {
       if(err){
@@ -127,10 +108,7 @@ app.delete('/:productId', (req, res, next) => {
           list: result
         });
       }
-    });  
-  }catch{
-    //check for errors, handle erros
-  }
+    }); 
 });
 
   module.exports = app;

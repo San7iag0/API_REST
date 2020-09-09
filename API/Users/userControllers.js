@@ -31,21 +31,9 @@ const adminUsers = [
 // -----------------------
 // verify  jwt save on headers 
 // check, change that ws name
-app.post('/api/posts', verifyToken, (req, res) => {
-    jwt.verify(req.token, "secretKey", (err, authData) => {
-        if(err){
-            res.sendStatus(403); //forbiden
-        } else {
-            res.json({
-                // check for message
-                message: 'up and running',
-                authData,
-            });
-        }
-    });
-  });
 
-  app.post('/api/login', (req, res) => {
+
+  app.post('/login', (req, res) => {
     //   created user with The EMAIL as an object 
     const user = {
         // `${result[0].email}`
@@ -101,6 +89,7 @@ app.post('/login', (req, res) => {
             res.status(200).json({
               message:'you have access now'
                 // check add jwt to headers 
+                // just admin validtaion 
   
             })
           }
