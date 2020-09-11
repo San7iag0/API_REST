@@ -10,15 +10,6 @@ const saltRounds = 10;
 const app = express();
 app.use(bodyParser.json());
 
-// check this end to another file
-// END TO HANDLE ERRORS
-app.use(function (err, req, res, next){
-  console.log(err.stack);
-  res.status(500).send('Server Error, Something broke!');
-  res.render('error:', {error: err})
-  next();
-});
-
 
 const adminUsers = [
   {
@@ -41,7 +32,6 @@ const adminUsers = [
   }
 ]
 
-// add validate function
 //EMP to get all the uses '/Users'
 app.get('/', verifyToken, (req, res) => {
   let sql = 'SELECT * FROM base_resto.users';
@@ -60,7 +50,6 @@ app.get('/', verifyToken, (req, res) => {
 });
 
 // check esta mierda no esta funcionando revisar manejo de errores 
-// check for admin
 // EMP to get info by ID
 app.get("/:userId", verifyToken, (req, res) => {
     const id = req.params.userId;
@@ -104,7 +93,6 @@ app.post('/create', (req, res) => {
 
 // check, not working properly, the fucking error validation is not f working 
 //  EMP to update users
-// check for user auth
 app.patch('/:userId', verifyToken, (req, res) => {
   const id = req.params.userId;
   let sql = `UPDATE base_resto.users SET userName = '${req.body.userName}', fullName = '${req.body.fullName}', email = '${req.body.email}', phone = ${req.body.phone}, address = '${req.body.address}' 
@@ -124,7 +112,6 @@ app.patch('/:userId', verifyToken, (req, res) => {
     });
 });
 
-// check for adming auth
 // EMP to Delete users
 app.delete('/:userId', verifyToken, (req, res) => {
   const id = req.params.userId;
