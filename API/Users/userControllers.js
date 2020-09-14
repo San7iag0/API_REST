@@ -9,45 +9,7 @@ const saltRounds = 10;
 
 app.use(bodyPaser.json());
 
-const adminUsers = [
-    {
-        UserName: "santi",
-        fullName: "Beja ",
-        email: "santi@email.com",
-        phone: 345678,
-        address: "123 fake st",
-        admin: true
-    },
-    {
-        UserName: "Pepita",
-        fullName: "smith",
-        email: "pep@email.com",
-        phone: 345678,
-        address: "null",
-        admin: true
-    }
-]
-
-// -----------------------
-// verify  jwt save on headers 
-// check, change that ws name
-
-
-  app.post('/login', (req, res) => {
-    //   created user with The EMAIL as an object 
-    const user = {
-        // `${result[0].email}`
-      Email: 'santi@mail.com' // ejem check delete 
-    }
-    jwt.sign({user: user}, "secretKey", (err, token) => {
-      res.json({
-        token, 
-      })
-    });
-  });
-
 // FORMAT OF TOKKEN 
-// Verify token on headers 
 function verifyToken(req, res, next){
     // get auth header value
     const bearerHeader = req.headers['authorization'];
@@ -85,11 +47,8 @@ app.post('/login', (req, res) => {
               message: 'Forbidden, Wrong Email Or password'
             })
           } else {
-            // check for JWT
             res.status(200).json({
               message:'you have access now'
-                // check add jwt to headers 
-                // just admin validtaion 
             });
           }
         });
