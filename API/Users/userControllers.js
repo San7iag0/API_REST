@@ -1,60 +1,122 @@
-const express = require("express");
-const app = express();
-const bodyPaser = require("body-parser");
-const jwt = require ('jsonwebtoken');
+// import verifyToken from './userControllers'
+
+const express = require('express');
+const bodyParser = require('body-parser');
 const db = require('../../SQL/SQLRoutes');
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
+const verifyToken = require('../../middlewares/middlewares');
+const verifyAdmin = require('../../middlewares/middlewares')
 
 
-app.use(bodyPaser.json());
+const saltRounds = 12;
 
-// FORMAT OF TOKKEN 
-function verifyToken(req, res, next){
-    // get auth header value
-    const bearerHeader = req.headers['authorization'];
-    // check if bearer is undefined
-    if(typeof bearerHeader !== 'undefined'){
-        // split at the space 
-        const bearer = bearerHeader.split(' ');
-        // get token from array
-        const bearerToken = bearer[1];
-        // set the token
-        req.token = bearerToken;
-        next(); 
-    } else {
-        res.status(403).json({
-            message: 'you dont have access'
-        });
-    }
-}
+const app = express();
+app.use(bodyParser.json());
 
 
-app.post('/login', (req, res) => {
-    let authEmail = req.body.email;
-    let sql = `SELECT * FROM base_resto.users WHERE email = '${authEmail}'`;
+const adminUsers = [
+  {
+    userName: "Pepita",
+    fullName: "smith",
+    email: "pep@email.com",
+    phone: 345678,
+    address: "null",
+    password: 123456,
+    admin: true
+  }
+]
+
+//EMP to get all the uses '/Users'
+app.get('/', verifyAdmin, (req, res) => {
+    let sql = 'SELECT * FROM base_resto.users';
     db.query(sql, (err, result) => {
-      console.log(result);
-      if(result[0].email != authEmail ){
-        res.status(401).json({
-          message: 'Unauthorized, wrong Email Or password'
+      if(err){
+        res.status(403).json({
+          message: 'you dont have access'
         });
       } else {
-        bcrypt.compare(`${req.body.password}`, `${result[0].password}`, function(bcryptErr, resultCompare) {
-          if(resultCompare !== true){
-            res.status(403).json({
-              list: bcryptErr,
-              message: 'Forbidden, Wrong Email Or password'
-            })
-          } else {
-            res.status(200).json({
-              message:'you have access now'
-            });
-          }
+        res.status(200).json({
+          message: 'Users List',
+          list: result
+        });  
+      }
+    });
+  }
+);
+
+// EMP to get info by ID
+app.get("/:userId", verifyToken, verifyAdmin, (req, res) => {
+    const id = req.params.userId;
+    let sql = `SELECT * FROM base_resto.users WHERE userId = ${id}`; 
+    db.query(sql, (err, result) => {
+      if(err){
+        res.status(403).json({
+          message: 'Wrong user Id'
+        });
+      } else {
+        res.status(200).json({
+          message: 'User information',
+          list: result
+        })
+      }
+    });
+});
+
+// EMP to created Users
+app.post('/create', (req, res) => { 
+  bcrypt.hash(`${req.body.password}`, saltRounds, function (err, hash) {   
+    let sql = `INSERT INTO base_resto.users SET userName = '${req.body.userName}', fullName = '${req.body.fullName}', email = '${req.body.email}', phone = ${req.body.phone}, address = '${req.body.address}', password = '${hash}', admin = ${req.body.admin}`;
+    db.query(sql, (dberr,  result) => {
+      if(dberr){
+          res.status(400).json({
+          message: 'bad resquest',
+          list: dberr
+        });
+      } else {
+        res.status(200).json({
+          message: 'User create Successfully',
+          list: result
         });
       }
     });
   });
+});
 
+//  EMP to update users
+app.patch('/:userId', verifyToken, verifyAdmin, (req, res) => {
+  const id = req.params.userId;
+  let sql = `UPDATE base_resto.users SET userName = '${req.body.userName}', fullName = '${req.body.fullName}', email = '${req.body.email}', phone = ${req.body.phone}, address = '${req.body.address}', admin = '${req.body.admin}'
+  WHERE userId = ${id}`;
+    db.query(sql, (err, result) => {
+      if(err){
+        res.status(400).json({
+          message: 'bad resquest'
+        });
+      } else {
+        res.status(200).json({
+          message: `you upgrade the user ID: ${id}`,
+          list: result 
+        });
+      }
+    });
+});
 
-module.exports = app;
+// EMP to Delete users
+app.delete('/:userId', verifyToken, verifyAdmin, (req, res) => {
+  const id = req.params.userId;
+  const sql = `DELETE FROM base_resto.users WHERE userId  = ${id}`;
+  db.query(sql, (err, result) => {
+    if(err){
+      res.status(403).json({
+        message: 'you dont have access'
+      });
+    } else {
+      res.status(200).json({
+        message: `you just deleted User ID: ${id}`,
+        list: result
+      });
+    }
+  });
+});
+
+module.exports =  app;
